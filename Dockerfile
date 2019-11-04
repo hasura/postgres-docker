@@ -7,9 +7,13 @@ LABEL maintainer=vamshi@hasura.io
 ARG PLV8_VERSION=2.3.13
 
 RUN PLV8_DEPENDENCIES="wget git g++ python pkg-config libc++-dev libc++abi-dev \
-  make libtinfo5 postgresql-server-dev-$PG_MAJOR" \
+  make postgresql-server-dev-$PG_MAJOR" \
   && apt-get update \
-  && apt-get install -y ${PLV8_DEPENDENCIES} \
+# Ideally, libtinfo5 should have been part of 'PLV8_DEPENDENCIES'
+# but some versions of the debian have it installed as an essential
+# package (buster, postgres 12, for example does not), which means
+# that there would be an error at 'apt-get remove -y ${PLV8_DEPENDENCIES}'
+  && apt-get install -y libtinfo5 ${PLV8_DEPENDENCIES} \
   && cd /root \
   && wget "https://github.com/plv8/plv8/archive/v$PLV8_VERSION.tar.gz" \
   && tar -xf "v$PLV8_VERSION.tar.gz" \
